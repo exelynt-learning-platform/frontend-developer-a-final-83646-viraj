@@ -58,7 +58,7 @@ const EmployeeFormDialog = ({
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>
+      <DialogTitle sx={{ color: '#000' }}>
         {mode === 'edit' ? 'Edit Employee' : 'Add Employee'}
       </DialogTitle>
 

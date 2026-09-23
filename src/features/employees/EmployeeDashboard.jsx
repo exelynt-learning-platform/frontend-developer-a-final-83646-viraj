@@ -130,7 +130,7 @@ const EmployeeDashboard = () => {
           mb: 3,
         }}
       >
-        <Typography variant="h4" component="h1" fontWeight="bold">
+        <Typography variant="h4" component="h1" fontWeight="bold" sx={{ color: 'black' }}>
           Employee Management
         </Typography>
         <Button variant="contained" color="primary" onClick={handleOpenAdd}>
