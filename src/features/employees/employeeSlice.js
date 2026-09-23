@@ -1,0 +1,130 @@
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import {
+  fetchEmployeesApi,
+  createEmployeeApi,
+  updateEmployeeApi,
+  deleteEmployeeApi,
+} from './employeeApi';
+
+const initialState = {
+  data: [],
+  loading: false,
+  error: null,
+};
+
+export const fetchEmployees = createAsyncThunk(
+  'employees/fetchEmployees',
+  async (_, { rejectWithValue }) => {
+    try {
+      const data = await fetchEmployeesApi();
+      return data;
+    } catch (err) {
+      return rejectWithValue(err.message || 'Failed to fetch employees');
+    }
+  }
+);
+
+export const createEmployee = createAsyncThunk(
+  'employees/createEmployee',
+  async (employeeData, { rejectWithValue }) => {
+    try {
+      const data = await createEmployeeApi(employeeData);
+      return data;
+    } catch (err) {
+      return rejectWithValue(err.message || 'Failed to create employee');
+    }
+  }
+);
+
+export const updateEmployee = createAsyncThunk(
+  'employees/updateEmployee',
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const updated = await updateEmployeeApi(id, data);
+      return updated;
+    } catch (err) {
+      return rejectWithValue(err.message || 'Failed to update employee');
+    }
+  }
+);
+
+export const deleteEmployee = createAsyncThunk(
+  'employees/deleteEmployee',
+  async (id, { rejectWithValue }) => {
+    try {
+      await deleteEmployeeApi(id);
+      return id;
+    } catch (err) {
+      return rejectWithValue(err.message || 'Failed to delete employee');
+    }
+  }
+);
+
+const employeeSlice = createSlice({
+  name: 'employees',
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      // Fetch Employees
+      .addCase(fetchEmployees.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchEmployees.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload;
+      })
+      .addCase(fetchEmployees.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Create Employee
+      .addCase(createEmployee.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createEmployee.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data.push(action.payload);
+      })
+      .addCase(createEmployee.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Update Employee
+      .addCase(updateEmployee.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateEmployee.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.data.findIndex((emp) => emp.id === action.payload.id);
+        if (index !== -1) {
+          state.data[index] = action.payload;
+        }
+      })
+      .addCase(updateEmployee.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Delete Employee
+      .addCase(deleteEmployee.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteEmployee.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = state.data.filter((emp) => emp.id !== action.payload);
+      })
+      .addCase(deleteEmployee.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+  },
+});
+
+export default employeeSlice.reducer;
