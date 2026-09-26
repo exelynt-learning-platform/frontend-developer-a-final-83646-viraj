@@ -88,13 +88,11 @@ const EmployeeDashboard = () => {
       if (formMode === "add") {
         await dispatch(createEmployee(formData)).unwrap();
         showSnackbar("Employee created successfully!", "success");
-        console.log("Add employee:", formData);
       } else {
         await dispatch(
           updateEmployee({ id: selectedEmployee.id, data: formData }),
         ).unwrap();
         showSnackbar("Employee updated successfully!", "success");
-        console.log("Update employee:", formData);
       }
       setFormOpen(false);
     } catch (err) {
