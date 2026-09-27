@@ -13,7 +13,7 @@ describe("EmployeeFormDialog", () => {
     { id: "3", country: "Canada" },
   ];
 
-  it("renders all four input fields and action buttons when open", () => {
+  it("renders all six input fields and action buttons when open", () => {
     render(
       <EmployeeFormDialog
         open={true}
@@ -31,6 +31,8 @@ describe("EmployeeFormDialog", () => {
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/mobile number/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/country/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^state$/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^district$/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^add$/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /cancel/i })).toBeInTheDocument();
   });
@@ -54,6 +56,8 @@ describe("EmployeeFormDialog", () => {
       expect(screen.getByText("Email is required")).toBeInTheDocument();
       expect(screen.getByText("Mobile number is required")).toBeInTheDocument();
       expect(screen.getByText("Country is required")).toBeInTheDocument();
+      expect(screen.getByText("State is required")).toBeInTheDocument();
+      expect(screen.getByText("District is required")).toBeInTheDocument();
     });
   });
 
@@ -103,6 +107,35 @@ describe("EmployeeFormDialog", () => {
     });
   });
 
+  it("displays validation errors when state or district is less than 2 characters", async () => {
+    render(
+      <EmployeeFormDialog
+        open={true}
+        mode="add"
+        countries={mockCountries}
+        onSubmit={vi.fn()}
+        onClose={vi.fn()}
+      />,
+    );
+
+    const stateInput = screen.getByLabelText(/^state$/i);
+    const districtInput = screen.getByLabelText(/^district$/i);
+    fireEvent.change(stateInput, { target: { value: "A" } });
+    fireEvent.change(districtInput, { target: { value: "B" } });
+
+    const submitButton = screen.getByRole("button", { name: /^add$/i });
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("State must be at least 2 characters"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("District must be at least 2 characters"),
+      ).toBeInTheDocument();
+    });
+  });
+
   it("pre-populates input fields when opened in edit mode", () => {
     const existingEmployee = {
       id: "42",
@@ -110,6 +143,8 @@ describe("EmployeeFormDialog", () => {
       email: "bob@example.com",
       mobile: "1234567890",
       country: "India",
+      state: "Maharashtra",
+      district: "Pune",
     };
 
     render(
@@ -127,5 +162,7 @@ describe("EmployeeFormDialog", () => {
     expect(screen.getByLabelText(/name/i)).toHaveValue("Bob Smith");
     expect(screen.getByLabelText(/email/i)).toHaveValue("bob@example.com");
     expect(screen.getByLabelText(/mobile number/i)).toHaveValue("1234567890");
+    expect(screen.getByLabelText(/^state$/i)).toHaveValue("Maharashtra");
+    expect(screen.getByLabelText(/^district$/i)).toHaveValue("Pune");
   });
 });

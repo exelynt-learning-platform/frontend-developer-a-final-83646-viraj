@@ -29,13 +29,15 @@ const EmployeeTable = ({
             <TableCell><strong>Email</strong></TableCell>
             <TableCell><strong>Mobile</strong></TableCell>
             <TableCell><strong>Country</strong></TableCell>
+            <TableCell><strong>State</strong></TableCell>
+            <TableCell><strong>District</strong></TableCell>
             <TableCell align="center"><strong>Actions</strong></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {loading ? (
             <TableRow>
-              <TableCell colSpan={6} align="center">
+              <TableCell colSpan={8} align="center">
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4, gap: 2 }}>
                   <CircularProgress size={20} />
                   <Typography variant="body1" color="text.secondary">
@@ -46,7 +48,7 @@ const EmployeeTable = ({
             </TableRow>
           ) : employees.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} align="center">
+              <TableCell colSpan={8} align="center">
                 <Typography variant="body1" sx={{ py: 3, color: 'text.secondary' }}>
                   {emptyMessage}
                 </Typography>
@@ -60,6 +62,8 @@ const EmployeeTable = ({
                 <TableCell>{emp.email || emp.emailId || '-'}</TableCell>
                 <TableCell>{emp.mobile}</TableCell>
                 <TableCell>{emp.country}</TableCell>
+                <TableCell>{emp.state || '-'}</TableCell>
+                <TableCell>{emp.district || '-'}</TableCell>
                 <TableCell align="center">
                   <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
                     <Button

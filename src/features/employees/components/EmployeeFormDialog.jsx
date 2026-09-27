@@ -31,6 +31,8 @@ const EmployeeFormDialog = ({
       email: '',
       mobile: '',
       country: '',
+      state: '',
+      district: '',
     },
   });
 
@@ -41,6 +43,8 @@ const EmployeeFormDialog = ({
         email: employee.email || employee.emailId || '',
         mobile: employee.mobile || '',
         country: employee.country || '',
+        state: employee.state || '',
+        district: employee.district || '',
       });
     } else {
       reset({
@@ -48,6 +52,8 @@ const EmployeeFormDialog = ({
         email: '',
         mobile: '',
         country: '',
+        state: '',
+        district: '',
       });
     }
   }, [employee, mode, open, reset]);
@@ -134,6 +140,42 @@ const EmployeeFormDialog = ({
                 ))}
               </TextField>
             )}
+          />
+
+          <TextField
+            label="State"
+            fullWidth
+            {...register('state', {
+              required: 'State is required',
+              minLength: {
+                value: 2,
+                message: 'State must be at least 2 characters',
+              },
+              maxLength: {
+                value: 50,
+                message: 'State cannot exceed 50 characters',
+              },
+            })}
+            error={Boolean(errors.state)}
+            helperText={errors.state?.message}
+          />
+
+          <TextField
+            label="District"
+            fullWidth
+            {...register('district', {
+              required: 'District is required',
+              minLength: {
+                value: 2,
+                message: 'District must be at least 2 characters',
+              },
+              maxLength: {
+                value: 50,
+                message: 'District cannot exceed 50 characters',
+              },
+            })}
+            error={Boolean(errors.district)}
+            helperText={errors.district?.message}
           />
         </DialogContent>
 

@@ -10,6 +10,8 @@ describe('EmployeeTable', () => {
       email: 'alice@example.com',
       mobile: '9876543210',
       country: 'Canada',
+      state: 'Ontario',
+      district: 'Toronto',
     },
     {
       id: '2',
@@ -17,10 +19,12 @@ describe('EmployeeTable', () => {
       email: 'bob@example.com',
       mobile: '1234567890',
       country: 'United States',
+      state: 'California',
+      district: 'Los Angeles',
     },
   ];
 
-  it('renders employee rows with correct details', () => {
+  it('renders employee rows with correct details including state and district', () => {
     render(
       <EmployeeTable
         employees={mockEmployees}
@@ -29,10 +33,38 @@ describe('EmployeeTable', () => {
       />
     );
 
+    expect(screen.getByRole('columnheader', { name: 'State' })).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'District' })).toBeInTheDocument();
     expect(screen.getByText('Alice Johnson')).toBeInTheDocument();
     expect(screen.getByText('alice@example.com')).toBeInTheDocument();
+    expect(screen.getByText('Ontario')).toBeInTheDocument();
+    expect(screen.getByText('Toronto')).toBeInTheDocument();
     expect(screen.getByText('Bob Smith')).toBeInTheDocument();
     expect(screen.getByText('bob@example.com')).toBeInTheDocument();
+    expect(screen.getByText('California')).toBeInTheDocument();
+    expect(screen.getByText('Los Angeles')).toBeInTheDocument();
+  });
+
+  it('renders dash fallback when state or district is not provided', () => {
+    const employeesWithoutLocation = [
+      {
+        id: '3',
+        name: 'Charlie Brown',
+        email: 'charlie@example.com',
+        mobile: '1122334455',
+        country: 'India',
+      },
+    ];
+    render(
+      <EmployeeTable
+        employees={employeesWithoutLocation}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+      />
+    );
+    const cells = screen.getAllByRole('cell');
+    const dashes = cells.filter((cell) => cell.textContent === '-');
+    expect(dashes.length).toBeGreaterThanOrEqual(2);
   });
 
   it('renders empty message when no employees are provided', () => {

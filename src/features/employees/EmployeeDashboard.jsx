@@ -7,6 +7,7 @@ import {
   createEmployee,
   updateEmployee,
   deleteEmployee,
+  clearSearch,
   clearError,
 } from "./employeeSlice";
 import { fetchCountries } from "../countries/countrySlice";
@@ -22,18 +23,24 @@ const EmployeeDashboard = () => {
 
   // Redux state with controlled, fine-grained selectors
   const employees = useSelector((state) => state.employees.data);
-  const loading = useSelector((state) => state.employees.loading);
+  const searchResult = useSelector((state) => state.employees.searchResult);
+  const isSearching = useSelector((state) => state.employees.isSearching);
+  const isListLoading = useSelector((state) => state.employees.isListLoading);
+  const isActionLoading = useSelector((state) => state.employees.isActionLoading);
   const error = useSelector((state) => state.employees.error);
   const countries = useSelector((state) => state.countries.data);
 
   // Local UI states
   const [searchTerm, setSearchTerm] = useState("");
-  const [isSearched, setIsSearched] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [formMode, setFormMode] = useState("add"); // 'add' | 'edit'
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [actionLoading, setActionLoading] = useState(false);
+
+  // Displayed employees computed from search state
+  const displayedEmployees = isSearching
+    ? (searchResult ? [searchResult] : [])
+    : employees;
 
   // Snackbar feedback state
   const [snackbar, setSnackbar] = useState({
@@ -61,23 +68,18 @@ const EmployeeDashboard = () => {
       handleClearSearch();
       return;
     }
-    setIsSearched(true);
     dispatch(fetchEmployeeById(trimmedId));
   };
 
   const handleClearSearch = () => {
     setSearchTerm("");
-    setIsSearched(false);
-    dispatch(clearError());
-    dispatch(fetchEmployees());
+    dispatch(clearSearch());
   };
 
   const handleSearchChange = (value) => {
     setSearchTerm(value);
-    if (value.trim() === "" && isSearched) {
-      setIsSearched(false);
-      dispatch(clearError());
-      dispatch(fetchEmployees());
+    if (value.trim() === "" && isSearching) {
+      dispatch(clearSearch());
     }
   };
 
@@ -100,7 +102,6 @@ const EmployeeDashboard = () => {
   };
 
   const handleFormSubmit = async (formData) => {
-    setActionLoading(true);
     try {
       if (formMode === "add") {
         await dispatch(createEmployee(formData)).unwrap();
@@ -114,14 +115,11 @@ const EmployeeDashboard = () => {
       setFormOpen(false);
     } catch (err) {
       showSnackbar(err || "Action failed", "error");
-    } finally {
-      setActionLoading(false);
     }
   };
 
   const handleConfirmDelete = async () => {
     if (!selectedEmployee) return;
-    setActionLoading(true);
     try {
       await dispatch(deleteEmployee(selectedEmployee.id)).unwrap();
       showSnackbar("Employee deleted successfully!", "success");
@@ -129,8 +127,6 @@ const EmployeeDashboard = () => {
       setSelectedEmployee(null);
     } catch (err) {
       showSnackbar(err || "Failed to delete employee", "error");
-    } finally {
-      setActionLoading(false);
     }
   };
 
@@ -170,17 +166,17 @@ const EmployeeDashboard = () => {
         onSearchChange={handleSearchChange}
         onSearch={handleSearchSubmit}
         onClear={handleClearSearch}
-        loading={loading}
+        loading={isListLoading}
       />
 
       {/* Responsive Employee Table */}
       <EmployeeTable
-        employees={employees}
-        loading={loading}
+        employees={displayedEmployees}
+        loading={isListLoading}
         onEdit={handleOpenEdit}
         onDelete={handleOpenDelete}
         emptyMessage={
-          isSearched && searchTerm.trim()
+          isSearching && searchTerm.trim()
             ? `No employee found with ID "${searchTerm.trim()}".`
             : "No employees found."
         }
@@ -194,14 +190,14 @@ const EmployeeDashboard = () => {
         countries={countries}
         onSubmit={handleFormSubmit}
         onClose={() => setFormOpen(false)}
-        loading={actionLoading}
+        loading={isActionLoading}
       />
 
       {/* Delete Confirmation Modal */}
       <DeleteConfirmDialog
         open={deleteOpen}
         employee={selectedEmployee}
-        loading={actionLoading}
+        loading={isActionLoading}
         onConfirm={handleConfirmDelete}
         onClose={() => setDeleteOpen(false)}
       />
