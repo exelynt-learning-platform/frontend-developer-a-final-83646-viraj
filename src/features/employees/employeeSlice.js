@@ -101,7 +101,9 @@ const employeeSlice = createSlice({
       })
       .addCase(updateEmployee.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.data.findIndex((emp) => emp.id === action.payload.id);
+        const index = state.data.findIndex(
+          (emp) => String(emp.id) === String(action.payload?.id)
+        );
         if (index !== -1) {
           state.data[index] = action.payload;
         }
@@ -118,7 +120,9 @@ const employeeSlice = createSlice({
       })
       .addCase(deleteEmployee.fulfilled, (state, action) => {
         state.loading = false;
-        state.data = state.data.filter((emp) => emp.id !== action.payload);
+        state.data = state.data.filter(
+          (emp) => String(emp.id) !== String(action.payload)
+        );
       })
       .addCase(deleteEmployee.rejected, (state, action) => {
         state.loading = false;

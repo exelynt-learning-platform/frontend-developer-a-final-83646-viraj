@@ -47,4 +47,19 @@ describe('employeeSlice', () => {
     const result = employeeReducer(previousState, deleteEmployee.fulfilled('1'));
     expect(result.data).toEqual([mockEmployees[1]]);
   });
+
+  it('should reactively update employee when payload ID is numeric and state ID is a string', () => {
+    let mockEmployees = [{ id: '1', name: 'John Doe' }, { id: '2', name: 'Jane Doe' }];
+    let previousState = { data: mockEmployees, loading: true, error: null };
+    let updatedEmployee = { id: 2, name: 'Mary Jane' };
+    const result = employeeReducer(previousState, updateEmployee.fulfilled(updatedEmployee));
+    expect(result.data[1]).toEqual(updatedEmployee);
+  });
+
+  it('should reactively remove employee when deleted ID is numeric and state ID is a string', () => {
+    let mockEmployees = [{ id: '1', name: 'John Doe' }, { id: '2', name: 'Jane Doe' }];
+    let previousState = { data: mockEmployees, loading: true, error: null };
+    const result = employeeReducer(previousState, deleteEmployee.fulfilled(1));
+    expect(result.data).toEqual([mockEmployees[1]]);
+  });
 });
