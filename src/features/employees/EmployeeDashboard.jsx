@@ -3,9 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { Container, Box, Typography, Button, Alert } from "@mui/material";
 import {
   fetchEmployees,
+  fetchEmployeeById,
   createEmployee,
   updateEmployee,
   deleteEmployee,
+  clearError,
 } from "./employeeSlice";
 import { fetchCountries } from "../countries/countrySlice";
 
@@ -18,16 +20,15 @@ import FeedbackSnackbar from "./components/FeedbackSnackbar";
 const EmployeeDashboard = () => {
   const dispatch = useDispatch();
 
-  // Redux state
-  const {
-    data: employees = [],
-    loading = false,
-    error = null,
-  } = useSelector((state) => state.employees);
-  const { data: countries = [] } = useSelector((state) => state.countries);
+  // Redux state with controlled, fine-grained selectors
+  const employees = useSelector((state) => state.employees.data);
+  const loading = useSelector((state) => state.employees.loading);
+  const error = useSelector((state) => state.employees.error);
+  const countries = useSelector((state) => state.countries.data);
 
   // Local UI states
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSearched, setIsSearched] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [formMode, setFormMode] = useState("add"); // 'add' | 'edit'
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -48,21 +49,37 @@ const EmployeeDashboard = () => {
   const handleCloseSnackbar = () => {
     setSnackbar((prev) => ({ ...prev, open: false }));
   };
-  
+
   useEffect(() => {
     dispatch(fetchEmployees());
     dispatch(fetchCountries());
   }, [dispatch]);
 
-  const filteredEmployees =
-    searchTerm.trim() === ""
-      ? employees
-      : employees.filter((emp) =>
-          emp.id
-            .toString()
-            .toLowerCase()
-            .includes(searchTerm.trim().toLowerCase()),
-        );
+  const handleSearchSubmit = () => {
+    const trimmedId = searchTerm.trim();
+    if (!trimmedId) {
+      handleClearSearch();
+      return;
+    }
+    setIsSearched(true);
+    dispatch(fetchEmployeeById(trimmedId));
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setIsSearched(false);
+    dispatch(clearError());
+    dispatch(fetchEmployees());
+  };
+
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    if (value.trim() === "" && isSearched) {
+      setIsSearched(false);
+      dispatch(clearError());
+      dispatch(fetchEmployees());
+    }
+  };
 
   // Dialog open handlers
   const handleOpenAdd = () => {
@@ -138,24 +155,35 @@ const EmployeeDashboard = () => {
 
       {/* Global API error banner */}
       {error ? (
-        <Alert severity="error" sx={{ mb: 3 }}>
+        <Alert
+          severity="error"
+          sx={{ mb: 3 }}
+          onClose={() => dispatch(clearError())}
+        >
           {error}
         </Alert>
       ) : null}
 
-      {/* Search Bar for ID filtering */}
+      {/* Search Bar for ID lookup */}
       <SearchBar
         searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        onClear={() => setSearchTerm("")}
+        onSearchChange={handleSearchChange}
+        onSearch={handleSearchSubmit}
+        onClear={handleClearSearch}
+        loading={loading}
       />
 
       {/* Responsive Employee Table */}
       <EmployeeTable
-        employees={filteredEmployees}
+        employees={employees}
         loading={loading}
         onEdit={handleOpenEdit}
         onDelete={handleOpenDelete}
+        emptyMessage={
+          isSearched && searchTerm.trim()
+            ? `No employee found with ID "${searchTerm.trim()}".`
+            : "No employees found."
+        }
       />
 
       {/* Add / Edit Form Modal */}

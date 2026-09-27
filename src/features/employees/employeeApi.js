@@ -11,6 +11,20 @@ export const fetchEmployeesApi = async () => {
   return data;
 };
 
+export const fetchEmployeeByIdApi = async (id) => {
+  const response = await fetch(`${BASE_URL}/employee/${id}`);
+
+  if (!response.ok) {
+    if (response.status === 404) {
+      throw new Error(`Employee with ID "${id}" not found`);
+    }
+    throw new Error('Failed to fetch employee');
+  }
+
+  const data = await response.json();
+  return data;
+};
+
 export const createEmployeeApi = async (employeeData) => {
   const response = await fetch(BASE_URL + '/employee', {
     method: 'POST',

@@ -20,7 +20,7 @@ The application allows users to view, search, add, edit, and delete employee rec
 ## ✨ Features
 
 - **Employee List & Table:** Displays employee records (ID, Name, Email, Mobile, Country) with actions to edit or delete.
-- **Search by ID:** Filter employees in real-time by their ID, showing a clear "No employees found" message if there is no match.
+- **Search by ID:** Search employee by exact ID via the dedicated `GET /employee/:id` endpoint, showing a clear message when no employee is found.
 - **Add & Edit Modal:** Reusable dialog with validation using React Hook Form:
   - Name is required (2–50 characters)
   - Valid email format required
@@ -73,7 +73,7 @@ src/
 ## 🌐 API Endpoints Used
 
 MockAPI endpoints used in this project:
-- **Employees:** `https://669b3f09276e45187d34eb4e.mockapi.io/api/v1/employee` (GET, POST, PUT, DELETE)
+- **Employees:** `https://669b3f09276e45187d34eb4e.mockapi.io/api/v1/employee` (GET all, GET by ID `/employee/:id`, POST, PUT, DELETE)
 - **Countries:** `https://669b3f09276e45187d34eb4e.mockapi.io/api/v1/country` (GET)
 
 ---
@@ -109,7 +109,7 @@ Or run once:
 ```bash
 npm run test -- --run
 ```
-All 5 test suites (22 tests) test initial slice states, thunk/reducer updates, form validation rules, table rendering, and dialog interactions.
+All 5 test suites (28 tests) test initial slice states, thunk/reducer updates, form validation rules, table rendering, and dialog interactions.
 
 ### Run linter
 ```bash

@@ -12,7 +12,13 @@ import {
   CircularProgress,
 } from '@mui/material';
 
-const EmployeeTable = ({ employees = [], loading = false, onEdit, onDelete }) => {
+const EmployeeTable = ({
+  employees = [],
+  loading = false,
+  onEdit,
+  onDelete,
+  emptyMessage = 'No employees found.',
+}) => {
   return (
     <TableContainer component={Paper} sx={{ mt: 2 }}>
       <Table aria-label="employee table">
@@ -42,7 +48,7 @@ const EmployeeTable = ({ employees = [], loading = false, onEdit, onDelete }) =>
             <TableRow>
               <TableCell colSpan={6} align="center">
                 <Typography variant="body1" sx={{ py: 3, color: 'text.secondary' }}>
-                  No employees found.
+                  {emptyMessage}
                 </Typography>
               </TableCell>
             </TableRow>

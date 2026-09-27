@@ -47,6 +47,19 @@ describe('EmployeeTable', () => {
     expect(screen.getByText('No employees found.')).toBeInTheDocument();
   });
 
+  it('renders custom empty message when provided', () => {
+    render(
+      <EmployeeTable
+        employees={[]}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+        emptyMessage={'No employee found with ID "42".'}
+      />
+    );
+
+    expect(screen.getByText('No employee found with ID "42".')).toBeInTheDocument();
+  });
+
   it('renders loading indicator when loading is true', () => {
     render(
       <EmployeeTable

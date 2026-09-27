@@ -1,9 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import employeeReducer, {
   fetchEmployees,
+  fetchEmployeeById,
   createEmployee,
   updateEmployee,
   deleteEmployee,
+  clearError,
 } from '../features/employees/employeeSlice';
 
 describe('employeeSlice', () => {
@@ -61,5 +63,29 @@ describe('employeeSlice', () => {
     let previousState = { data: mockEmployees, loading: true, error: null };
     const result = employeeReducer(previousState, deleteEmployee.fulfilled(1));
     expect(result.data).toEqual([mockEmployees[1]]);
+  });
+
+  it('should store single employee on fetchEmployeeById.fulfilled', () => {
+    let mockEmployee = { id: '1', name: 'John Doe' };
+    const result = employeeReducer(initialState, fetchEmployeeById.fulfilled(mockEmployee));
+    expect(result.data).toEqual([mockEmployee]);
+    expect(result.loading).toBe(false);
+  });
+
+  it('should clear data and set error on fetchEmployeeById.rejected', () => {
+    const errorMsg = 'Employee with ID "99" not found';
+    const result = employeeReducer(
+      initialState,
+      fetchEmployeeById.rejected(null, '', '99', errorMsg)
+    );
+    expect(result.data).toEqual([]);
+    expect(result.error).toBe(errorMsg);
+    expect(result.loading).toBe(false);
+  });
+
+  it('should reset error on clearError action', () => {
+    const stateWithError = { ...initialState, error: 'Some error' };
+    const result = employeeReducer(stateWithError, clearError());
+    expect(result.error).toBeNull();
   });
 });

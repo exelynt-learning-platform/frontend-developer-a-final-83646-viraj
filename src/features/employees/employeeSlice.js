@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import {
   fetchEmployeesApi,
+  fetchEmployeeByIdApi,
   createEmployeeApi,
   updateEmployeeApi,
   deleteEmployeeApi,
@@ -20,6 +21,18 @@ export const fetchEmployees = createAsyncThunk(
       return data;
     } catch (err) {
       return rejectWithValue(err.message || 'Failed to fetch employees');
+    }
+  }
+);
+
+export const fetchEmployeeById = createAsyncThunk(
+  'employees/fetchEmployeeById',
+  async (id, { rejectWithValue }) => {
+    try {
+      const data = await fetchEmployeeByIdApi(id);
+      return data;
+    } catch (err) {
+      return rejectWithValue(err.message || 'Failed to fetch employee');
     }
   }
 );
@@ -63,7 +76,11 @@ export const deleteEmployee = createAsyncThunk(
 const employeeSlice = createSlice({
   name: 'employees',
   initialState,
-  reducers: {},
+  reducers: {
+    clearError: (state) => {
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       // Fetch Employees
@@ -77,6 +94,21 @@ const employeeSlice = createSlice({
       })
       .addCase(fetchEmployees.rejected, (state, action) => {
         state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Fetch Employee by ID
+      .addCase(fetchEmployeeById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchEmployeeById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload ? [action.payload] : [];
+      })
+      .addCase(fetchEmployeeById.rejected, (state, action) => {
+        state.loading = false;
+        state.data = [];
         state.error = action.payload;
       })
 
@@ -130,5 +162,7 @@ const employeeSlice = createSlice({
       });
   },
 });
+
+export const { clearError } = employeeSlice.actions;
 
 export default employeeSlice.reducer;
